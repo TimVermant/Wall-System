@@ -9,6 +9,9 @@ public class Builder : MonoBehaviour
 
     private GameObject _preview = null;
 
+
+
+
     private void Update()
     {
         RaycastHit hit = new();
@@ -21,6 +24,7 @@ public class Builder : MonoBehaviour
                 //Debug.Log(hit.transform.name);
                 //Debug.Log("hit");
                 Build(hit.point);
+                
             }
         }
     }
@@ -29,7 +33,7 @@ public class Builder : MonoBehaviour
     {
         if (_wallPrefab)
         {
-            Instantiate(_wallPrefab, position, Quaternion.Euler(-90, 0, 0));
+            Instantiate(_wallPrefab, position, Quaternion.Euler(0, 0, 0));
             _preview.SetActive(false);
         }
     }
