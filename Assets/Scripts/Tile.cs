@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile: MonoBehaviour
+public class Tile
 {
     public enum EdgeDirection
     {
@@ -18,12 +18,12 @@ public class Tile: MonoBehaviour
     public List<Edge> Edges { get; set; } = new List<Edge>();
 
 
-    public void PlaceBuilding(EdgeDirection direction, GameObject building)
-    {
-        
-        Edges[(int)direction].EdgeBuilding = Instantiate(building,Position,Quaternion.identity);
+    //public void PlaceBuilding(EdgeDirection direction, GameObject building)
+    //{
 
-    }
+    //    Edges[(int)direction].EdgeBuilding = Instantiate(building, Position, Quaternion.identity);
+
+    //}
 
 
 }

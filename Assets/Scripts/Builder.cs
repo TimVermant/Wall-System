@@ -6,7 +6,7 @@ public class Builder : MonoBehaviour
 {
     [SerializeField] private GameObject _wallPrefab = null;
     [SerializeField] private Material _previewMat = null;
-
+    [SerializeField] private GridManager _gridManager = null;
     private GameObject _preview = null;
 
 
@@ -21,10 +21,9 @@ public class Builder : MonoBehaviour
             DrawPreview(hit.point);
             if (Input.GetMouseButtonDown(0))
             {
-                //Debug.Log(hit.transform.name);
-                //Debug.Log("hit");
+
                 Build(hit.point);
-                
+
             }
         }
     }
@@ -33,19 +32,30 @@ public class Builder : MonoBehaviour
     {
         if (_wallPrefab)
         {
-            Instantiate(_wallPrefab, position, Quaternion.Euler(0, 0, 0));
+
+            Tile tileHit = new();
+            Edge edge = new();
+            _gridManager.GetBuildInfo(position, out tileHit, out edge);
+            if (edge.EdgeBuilding != null)
+            {
+                return;
+            }
+            edge.EdgeBuilding = Instantiate(_wallPrefab, edge.EdgePosition, Quaternion.Euler(0, 0, 0));
             _preview.SetActive(false);
         }
     }
 
-    private void DrawPreview(Vector3 location)
+    private void DrawPreview(Vector3 position)
     {
-        if( _preview == null)
+        if (_preview == null)
         {
             CreatePreview();
         }
         _preview.SetActive(true);
-        _preview.transform.position = location;
+        Tile tileHit = new();
+        Edge edge = new();
+        _gridManager.GetBuildInfo(position, out tileHit, out edge);
+        _preview.transform.position = edge.EdgePosition;
     }
 
     private void CreatePreview()
