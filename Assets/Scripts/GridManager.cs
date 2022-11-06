@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
+    public List<Tile> Tiles { get; private set; } = new List<Tile>();
 
-    [SerializeField] private int _gridSize = 5;
-    [SerializeField] private float _tileSize = 5.0f;
     [SerializeField] GameObject _tile;
     [SerializeField] GameObject _wall;
 
+    private float _tileSize = 2.5f;
 
-    public List<Tile> Tiles { get; private set; } = new List<Tile>();
 
-    private int _rowSize = 5;
-    private int _columnSize = 5;
+    [SerializeField] private int _rowSize = 5;
+    [SerializeField] private int _columnSize = 5;
+    private int _gridSize = 5;
 
 
     public void GetBuildInfo(Vector3 position, out Tile tile, out Edge edge)
@@ -22,7 +22,7 @@ public class GridManager : MonoBehaviour
         tile = GetNearestTile(position);
         edge = GetNearestTileEdge(position, tile);
 
-
+        _tileSize = _tile.transform.localScale.x * 10.0f;
 
     }
 
@@ -175,7 +175,7 @@ public class GridManager : MonoBehaviour
         Edge closestEdge = new();
         foreach (Edge edge in tile.Edges)
         {
-            if(edge == null)
+            if (edge == null)
                 continue;
 
             float newDistance = Vector3.Distance(position, edge.EdgePosition);

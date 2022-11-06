@@ -445,8 +445,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2835919646664630182, guid: b0900cc8cfd117f47a6b68697dadf037, type: 3}
     - target: {fileID: 5874999284224032246, guid: f025d24c44703c641aa4d8ef44c9ef9c, type: 3}
+      propertyPath: _rowSize
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5874999284224032246, guid: f025d24c44703c641aa4d8ef44c9ef9c, type: 3}
       propertyPath: _tileSize
-      value: 10
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5874999284224032246, guid: f025d24c44703c641aa4d8ef44c9ef9c, type: 3}
+      propertyPath: _columnSize
+      value: 25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f025d24c44703c641aa4d8ef44c9ef9c, type: 3}
