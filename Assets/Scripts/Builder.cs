@@ -10,8 +10,6 @@ public class Builder : MonoBehaviour
     private GameObject _preview = null;
 
 
-
-
     private void Update()
     {
         RaycastHit hit = new();

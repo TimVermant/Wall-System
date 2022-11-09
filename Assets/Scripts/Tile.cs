@@ -18,12 +18,5 @@ public class Tile
     public List<Edge> Edges { get; set; } = new List<Edge>();
 
 
-    //public void PlaceBuilding(EdgeDirection direction, GameObject building)
-    //{
-
-    //    Edges[(int)direction].EdgeBuilding = Instantiate(building, Position, Quaternion.identity);
-
-    //}
-
 
 }

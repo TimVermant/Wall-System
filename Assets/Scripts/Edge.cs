@@ -5,13 +5,17 @@ using UnityEngine;
 public class Edge
 { 
 
-    //public Tile tileA { get; set; } = null;
-    //public Tile tileB { get; set; } = null;
+      
 
     public Vector3 EdgePosition { get; set; }
+    public GameObject EdgeBuilding { get; set; }
+
+    public List<Corner> Corners { get; set; } = new List<Corner>();
 
     
+    public void InitializeEdge()
+    {
 
-    public GameObject EdgeBuilding { get; set; }
+    }
 
 }

@@ -6,8 +6,9 @@ public class GridManager : MonoBehaviour
 {
     public List<Tile> Tiles { get; private set; } = new List<Tile>();
 
-    [SerializeField] GameObject _tile;
-    [SerializeField] GameObject _wall;
+    [SerializeField] private WallSystem _wallSystem;
+    [SerializeField] private GameObject _tile;
+    [SerializeField] private GameObject _wall;
 
     private float _tileSize = 2.5f;
 
@@ -31,6 +32,7 @@ public class GridManager : MonoBehaviour
         _gridSize = _rowSize * _columnSize;
         InitializeGrid();
         InitializeEdges();
+        InitializeCorners();
     }
 
     private void InitializeGrid()
@@ -70,15 +72,40 @@ public class GridManager : MonoBehaviour
             int row = i % _rowSize;
 
             Tiles[i].Edges = FindEdges(column, row);
-
+           
+            
         }
     }
 
+    private void InitializeCorners()
+    {
+
+    }
 
     private void AddEdgeToTile(Tile.EdgeDirection direction, Tile currentTile, Tile neighbouringTile, List<Edge> edgeList)
     {
         if (neighbouringTile == null || neighbouringTile.Edges.Count == 0)
         {
+            Vector3 edgePosition = currentTile.Position;
+            switch (direction)
+            {
+                case Tile.EdgeDirection.North:
+                    edgePosition.z += _tileSize * 0.5f;
+                    break;
+                case Tile.EdgeDirection.South:
+                    edgePosition.z -= _tileSize * 0.5f;
+                    break;
+                case Tile.EdgeDirection.West:
+                    edgePosition.x -= _tileSize * 0.5f;
+                    break;
+                case Tile.EdgeDirection.East:
+                    edgePosition.x -= _tileSize * 0.5f;
+                    break;
+            }
+            Edge newEdge = new();
+            newEdge.EdgePosition = edgePosition;
+            edgeList[(int)direction] = newEdge;
+            _wallSystem.AddWall(newEdge);
             return;
         }
 
@@ -90,6 +117,7 @@ public class GridManager : MonoBehaviour
             Edge newEdge = new();
             newEdge.EdgePosition = midPoint;
             edgeList[(int)direction] = newEdge;
+            _wallSystem.AddWall(newEdge);
         }
         else
         {
