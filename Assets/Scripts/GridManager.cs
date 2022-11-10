@@ -33,6 +33,7 @@ public class GridManager : MonoBehaviour
         InitializeGrid();
         InitializeEdges();
         InitializeCorners();
+
     }
 
     private void InitializeGrid()
@@ -54,7 +55,9 @@ public class GridManager : MonoBehaviour
                 Tile tile = new();
 
                 tile.Position = currentPos;
+
                 Instantiate(_tile, tile.Position, Quaternion.identity);
+
                 Tiles.Add(tile);
 
                 currentPos.x += _tileSize;
@@ -72,8 +75,8 @@ public class GridManager : MonoBehaviour
             int row = i % _rowSize;
 
             Tiles[i].Edges = FindEdges(column, row);
-           
-            
+
+
         }
     }
 
@@ -81,6 +84,7 @@ public class GridManager : MonoBehaviour
     {
 
     }
+
 
     private void AddEdgeToTile(Tile.EdgeDirection direction, Tile currentTile, Tile neighbouringTile, List<Edge> edgeList)
     {
@@ -233,6 +237,23 @@ public class GridManager : MonoBehaviour
         return Tile.EdgeDirection.North;
 
     }
+
+    private List<Edge> GetNearbyPlacedWalls(Edge edge)
+    {
+        List<Edge> walls = new List<Edge>();
+
+        foreach(Corner corner in edge.Corners)
+        {
+            foreach(Edge cornerEdge in corner.EdgeNeighbours)
+            {
+
+            }
+        }
+
+        return walls;
+    }
+
+    // Calculating values
 
     private Vector3 GetMidpoint(Vector3 pointA, Vector3 pointB)
     {

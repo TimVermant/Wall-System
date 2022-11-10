@@ -8,14 +8,12 @@ public class Edge
       
 
     public Vector3 EdgePosition { get; set; }
+    public Vector3 EdgeDirection { get; set; }
     public GameObject EdgeBuilding { get; set; }
 
     public List<Corner> Corners { get; set; } = new List<Corner>();
 
     
-    public void InitializeEdge()
-    {
 
-    }
 
 }

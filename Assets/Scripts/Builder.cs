@@ -34,14 +34,25 @@ public class Builder : MonoBehaviour
             Tile tileHit = new();
             Edge edge = new();
             _gridManager.GetBuildInfo(position, out tileHit, out edge);
+            
             if (edge.EdgeBuilding != null)
             {
                 return;
             }
             edge.EdgeBuilding = Instantiate(_wallPrefab, edge.EdgePosition, Quaternion.Euler(0, 0, 0));
+            edge.EdgeBuilding.transform.forward = GetWallDirection(tileHit, edge);
             _preview.SetActive(false);
         }
     }
+
+    private Vector3 GetWallDirection(Tile tile, Edge edge)
+    {
+
+        Vector3 tileDirection = edge.EdgePosition - tile.Position;
+
+        return tileDirection;
+    }
+
 
     private void DrawPreview(Vector3 position)
     {
@@ -53,7 +64,10 @@ public class Builder : MonoBehaviour
         Tile tileHit = new();
         Edge edge = new();
         _gridManager.GetBuildInfo(position, out tileHit, out edge);
+   
         _preview.transform.position = edge.EdgePosition;
+        _preview.transform.forward = GetWallDirection(tileHit, edge);
+        
     }
 
     private void CreatePreview()
