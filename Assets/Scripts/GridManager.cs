@@ -6,6 +6,7 @@ public class GridManager : MonoBehaviour
 {
     public List<Tile> Tiles { get; private set; } = new List<Tile>();
 
+    [SerializeField] private GameObject _gridObject;
     [SerializeField] private WallSystem _wallSystem;
     [SerializeField] private GameObject _tile;
     [SerializeField] private GameObject _wall;
@@ -32,7 +33,6 @@ public class GridManager : MonoBehaviour
         _gridSize = _rowSize * _columnSize;
         InitializeGrid();
         InitializeEdges();
-        InitializeCorners();
 
     }
 
@@ -56,7 +56,7 @@ public class GridManager : MonoBehaviour
 
                 tile.Position = currentPos;
 
-                Instantiate(_tile, tile.Position, Quaternion.identity);
+                Instantiate(_tile, tile.Position, Quaternion.identity, _gridObject.transform);
 
                 Tiles.Add(tile);
 
@@ -80,54 +80,76 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void InitializeCorners()
-    {
-
-    }
 
 
     private void AddEdgeToTile(Tile.EdgeDirection direction, Tile currentTile, Tile neighbouringTile, List<Edge> edgeList)
     {
+        Edge.EdgeOrientation orientation = Edge.EdgeOrientation.Upwards;
+        List<Tile> tiles = new List<Tile> { null, null };
+
+        Vector3 edgePosition = currentTile.Position;
+        switch (direction)
+        {
+            case Tile.EdgeDirection.North:
+                edgePosition.z += _tileSize * 0.5f;
+                tiles[0] = currentTile;
+                tiles[1] = neighbouringTile;
+                orientation = Edge.EdgeOrientation.Upwards;
+                break;
+            case Tile.EdgeDirection.South:
+                edgePosition.z -= _tileSize * 0.5f;
+                tiles[1] = currentTile;
+                tiles[0] = neighbouringTile;
+                orientation = Edge.EdgeOrientation.Upwards;
+                break;
+            case Tile.EdgeDirection.West:
+                edgePosition.x -= _tileSize * 0.5f;
+                tiles[1] = currentTile;
+                tiles[0] = neighbouringTile;
+                orientation = Edge.EdgeOrientation.Sideways;
+                break;
+            case Tile.EdgeDirection.East:
+                edgePosition.x -= _tileSize * 0.5f;
+                tiles[0] = currentTile;
+                tiles[1] = neighbouringTile;
+                orientation = Edge.EdgeOrientation.Sideways;
+                break;
+        }
+
         if (neighbouringTile == null || neighbouringTile.Edges.Count == 0)
         {
-            Vector3 edgePosition = currentTile.Position;
-            switch (direction)
-            {
-                case Tile.EdgeDirection.North:
-                    edgePosition.z += _tileSize * 0.5f;
-                    break;
-                case Tile.EdgeDirection.South:
-                    edgePosition.z -= _tileSize * 0.5f;
-                    break;
-                case Tile.EdgeDirection.West:
-                    edgePosition.x -= _tileSize * 0.5f;
-                    break;
-                case Tile.EdgeDirection.East:
-                    edgePosition.x -= _tileSize * 0.5f;
-                    break;
-            }
+
             Edge newEdge = new();
             newEdge.EdgePosition = edgePosition;
+            newEdge.AdjacentTiles = tiles;
+            newEdge.CurrentEdgeOrientation = orientation;
             edgeList[(int)direction] = newEdge;
             _wallSystem.AddWall(newEdge);
             return;
         }
-
-
-        Vector3 midPoint = GetMidpoint(currentTile.Position, neighbouringTile.Position);
-        Edge neighboursEdge = neighbouringTile.Edges[(int)InverseDirection(direction)];
-        if (neighboursEdge == null)
-        {
-            Edge newEdge = new();
-            newEdge.EdgePosition = midPoint;
-            edgeList[(int)direction] = newEdge;
-            _wallSystem.AddWall(newEdge);
-        }
         else
         {
-            edgeList[(int)direction] = neighboursEdge;
+            Vector3 midPoint = GetMidpoint(currentTile.Position, neighbouringTile.Position);
+            Edge neighboursEdge = neighbouringTile.Edges[(int)InverseDirection(direction)];
+            if (neighboursEdge == null)
+            {
+
+                Edge newEdge = new();
+                newEdge.EdgePosition = midPoint;
+                newEdge.AdjacentTiles = tiles;
+                newEdge.CurrentEdgeOrientation = orientation;
+                edgeList[(int)direction] = newEdge;
+                _wallSystem.AddWall(newEdge);
+            }
+            else
+            {
+                edgeList[(int)direction] = neighboursEdge;
+            }
         }
     }
+
+
+
 
 
     // Helpers
@@ -150,6 +172,21 @@ public class GridManager : MonoBehaviour
         }
 
         return Tiles[index];
+    }
+
+    private List<Tile> GetCorneringTiles(int tileIndex)
+    {
+
+
+        return new();
+
+    }
+
+    private Tile GetTile(Tile.EdgeDirection direction, int tileIndex)
+    {
+
+
+        return new();
     }
 
 
@@ -242,9 +279,9 @@ public class GridManager : MonoBehaviour
     {
         List<Edge> walls = new List<Edge>();
 
-        foreach(Corner corner in edge.Corners)
+        foreach (Corner corner in edge.Corners)
         {
-            foreach(Edge cornerEdge in corner.EdgeNeighbours)
+            foreach (Edge cornerEdge in corner.EdgeNeighbours)
             {
 
             }
@@ -262,3 +299,4 @@ public class GridManager : MonoBehaviour
 
 
 }
+
