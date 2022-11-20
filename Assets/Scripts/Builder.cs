@@ -6,9 +6,11 @@ public class Builder : MonoBehaviour
 {
     [SerializeField] private GameObject _wallObject;
     [SerializeField] private GameObject _wallPrefab = null;
+    [SerializeField] private GameObject _cornerPrefab = null;
     [SerializeField] private Material _previewMat = null;
     [SerializeField] private Material _invalidPreviewMat = null;
     [SerializeField] private GridManager _gridManager = null;
+    [SerializeField] private WallSystem _wallSystem = null;
     private GameObject _preview = null;
 
 
@@ -41,10 +43,25 @@ public class Builder : MonoBehaviour
             {
                 return;
             }
-            edge.EdgeBuilding = Instantiate(_wallPrefab, edge.EdgePosition, Quaternion.Euler(0, 0, 0),_wallObject.transform);
+            edge.EdgeBuilding = Instantiate(_wallPrefab, edge.EdgePosition, Quaternion.Euler(0, 0, 0), _wallObject.transform);
             edge.EdgeBuilding.transform.forward = GetWallDirection(tileHit, edge);
+            _wallSystem.AddWall(edge);
+            TryBuildCorners(edge);
             _preview.SetActive(false);
         }
+    }
+
+    private void TryBuildCorners(Edge edge)
+    {
+        foreach (Corner corner in edge.Corners)
+        {
+            if (_wallSystem.HasAdjacentWall(corner))
+            {
+                corner.CornerObject = Instantiate(_cornerPrefab, corner.Position, Quaternion.Euler(0, 0, 0), _wallObject.transform);
+            }
+
+        }
+
     }
 
     private Vector3 GetWallDirection(Tile tile, Edge edge)

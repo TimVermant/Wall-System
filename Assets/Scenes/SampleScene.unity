@@ -419,9 +419,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2835919646664630182, guid: b0900cc8cfd117f47a6b68697dadf037, type: 3}
     - target: {fileID: 6777518189347786189, guid: e2535efb33c09884ab26dd39ed611702, type: 3}
+      propertyPath: _wallSystem
+      value: 
+      objectReference: {fileID: 7551343845652981987}
+    - target: {fileID: 6777518189347786189, guid: e2535efb33c09884ab26dd39ed611702, type: 3}
       propertyPath: _gridManager
       value: 
       objectReference: {fileID: 1305756626}
+    - target: {fileID: 6777518189347786189, guid: e2535efb33c09884ab26dd39ed611702, type: 3}
+      propertyPath: _cornerPrefab
+      value: 
+      objectReference: {fileID: 8554191667750131664, guid: 2aa2d60be4ad5f240a8f86092da3320a, type: 3}
     - target: {fileID: 6777518189347786189, guid: e2535efb33c09884ab26dd39ed611702, type: 3}
       propertyPath: _invalidPreviewMat
       value: 

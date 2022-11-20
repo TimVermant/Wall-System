@@ -16,7 +16,7 @@ public class Tile
     //public GameObject TileObject { get; set; }
     public GameObject Building { get; set; }
     public List<Edge> Edges { get; set; } = new List<Edge>();
-
+    public List<Corner> Corners { get; set; } = new List<Corner> { null, null, null, null };
 
 
 }

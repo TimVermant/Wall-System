@@ -5,7 +5,7 @@ using UnityEngine;
 public class WallSystem : MonoBehaviour
 {
     public List<Edge> Walls { get; } = new List<Edge>();
-    public List<Corner> Corners { get; } = new List<Corner>();
+
 
     public void AddWall(Edge edge)
     {
@@ -17,5 +17,20 @@ public class WallSystem : MonoBehaviour
         {
             Walls.Add(edge);
         }
+    }
+
+    public bool HasAdjacentWall(Corner corner)
+    {
+        int count = 0;
+        
+        foreach(Edge edge in corner.EdgeNeighbours)
+        {
+            if(Walls.Find(wallEdge => wallEdge.EdgePosition == edge.EdgePosition) != null)
+            {
+                count++;
+            }
+        }
+        // Needs more then 1 adjacent wall to place the pillar(s)
+        return count > 1;
     }
 }
