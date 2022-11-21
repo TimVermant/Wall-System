@@ -36,16 +36,7 @@ public class GridManager : MonoBehaviour
         InitializeGrid();
         InitializeEdges();
         InitializeCorners();
-        //foreach(Tile tile in Tiles)
-        //{
-        //    foreach (Edge edge in tile.Edges)
-        //    {
-        //        foreach(Corner corner in edge.Corners)
-        //        {
-        //            Debug.Log(corner.EdgeNeighbours.Count);
-        //        }
-        //    }
-        //}
+
     }
 
     private void InitializeGrid()
@@ -67,6 +58,7 @@ public class GridManager : MonoBehaviour
                 Tile tile = new();
 
                 tile.Position = currentPos;
+                tile.TileIndex = GetIndex(column, row);
 
                 Instantiate(_tile, tile.Position, Quaternion.identity, _gridObject.transform);
 
@@ -83,32 +75,41 @@ public class GridManager : MonoBehaviour
     {
         for (int i = 0; i < Tiles.Count; i++)
         {
-            int column = i / _columnSize;
-            int row = i % _rowSize;
+            int column = GetColumn(i);
+            int row = GetRow(i);
 
             Tiles[i].Edges = FindEdges(column, row);
 
-            foreach (Edge edge in Tiles[i].Edges)
-            {
-                if (edge != null)
-                {
-                    GenerateCorners(edge);
-                }
-            }
-            AddTileCorners(Tiles[i]);
+
         }
     }
 
-    private void InitializeCorners()
+    private List<Edge> FindEdges(int column, int row)
     {
-        for (int i = 0; i < Tiles.Count; i++)
+        Tile currentTile = GetTile(column, row);
+        if (currentTile == null)
         {
-            int column = i / _columnSize;
-            int row = i % _rowSize;
-            CombineCorners(column, row);
-
+            Debug.LogError("Invalid tile: GridManager.FindEdges()");
         }
+        List<Edge> edgeList = new List<Edge> { null, null, null, null };
+        // NORTH-SOUTH-EAST-WEST
+
+        Tile northTile = GetTile(column + 1, row);
+        Tile southTile = GetTile(column - 1, row);
+        Tile eastTile = GetTile(column, row + 1);
+        Tile westTile = GetTile(column, row - 1);
+
+        AddEdgeToTile(Tile.EdgeDirection.North, currentTile, northTile, edgeList);
+        AddEdgeToTile(Tile.EdgeDirection.South, currentTile, southTile, edgeList);
+        AddEdgeToTile(Tile.EdgeDirection.East, currentTile, eastTile, edgeList);
+        AddEdgeToTile(Tile.EdgeDirection.West, currentTile, westTile, edgeList);
+
+
+
+
+        return edgeList;
     }
+
 
 
     private void AddEdgeToTile(Tile.EdgeDirection direction, Tile currentTile, Tile neighbouringTile, List<Edge> edgeList)
@@ -172,205 +173,101 @@ public class GridManager : MonoBehaviour
     }
 
 
+    private void InitializeCorners()
+    {
+        for (int i = 0; i < Tiles.Count; i++)
+        {
+            AddCornersToTile(i);
+        }
+    }
+
+    private void AddCornersToTile(int index)
+    {
+        // Get nearby tiles
+        List<Tile> tiles = GetAdjacentTiles(index);
+
+        Tile middleTile = Tiles[index];
+        foreach (Tile tile in tiles)
+        {
+            // Get overlapping edge with main tile 
+            Edge overlappingEdge = GetOverlappingEdge(tile, middleTile);
+
+            // Generate corners
+            if (overlappingEdge != null)
+            {
+                GenerateCorners(overlappingEdge);
+            }
+
+        }
+
+
+        // Combine corners tile
+        CombineCorners(index);
+    }
 
     private void GenerateCorners(Edge edge)
     {
-        Corner cornerA = new();
-        Corner cornerB = new();
-
-
-        Vector3 edgePosA = edge.EdgePosition;
-        Vector3 edgePosB = edge.EdgePosition;
-
+        Corner cornerA = new Corner();
+        Corner cornerB = new Corner();
+        Vector3 cornerPosA = edge.EdgePosition;
+        Vector3 cornerPosB = edge.EdgePosition;
         switch (edge.CurrentEdgeOrientation)
         {
+
             case Edge.EdgeOrientation.Upwards:
-                edgePosA.x -= _tileSize * 0.5f;
-                edgePosB.x += _tileSize * 0.5f;
+                cornerPosA.x -= _tileSize * 0.5f;
+                cornerPosB.x += _tileSize * 0.5f;
                 break;
             case Edge.EdgeOrientation.Sideways:
-                edgePosA.z -= _tileSize * 0.5f;
-                edgePosB.z += _tileSize * 0.5f;
+                cornerPosA.z -= _tileSize * 0.5f;
+                cornerPosB.z += _tileSize * 0.5f;
                 break;
         }
 
-        cornerA.Position = edgePosA;
-        cornerB.Position = edgePosB;
-
-        cornerA.EdgeNeighbours.Add(edge);
-        cornerB.EdgeNeighbours.Add(edge);
+        cornerA.Position = cornerPosA;
+        cornerB.Position = cornerPosB;
 
         edge.Corners[0] = cornerA;
         edge.Corners[1] = cornerB;
 
-
     }
 
-    private void AddTileCorners(Tile tile)
+    private void CombineCorners(int index)
     {
-        List<Corner> cornerList = new List<Corner>();
-        List<Corner> commonCornerList = new List<Corner>();
-
+        Tile tile = Tiles[index];
         for (int i = 0; i < tile.Edges.Count; i++)
         {
-            foreach (Corner corner in tile.Edges[i].Corners)
+            Edge currentEdge = tile.Edges[i];
+            int nextIndex = i + 1;
+            if (nextIndex >= tile.Edges.Count)
             {
-                if (cornerList.Find(cor => corner.Position == cor.Position) == null)
+                nextIndex = 0;
+            }
+            Edge nextEdge = tile.Edges[nextIndex];
+            if (currentEdge.CornersSet && nextEdge.CornersSet)
+            {
+                CombineCornersEdges(currentEdge, nextEdge);
+            }
+        }
+    }
+
+    private void CombineCornersEdges(Edge edge1, Edge edge2)
+    {
+        for (int edge1Index = 0; edge1Index < edge1.Corners.Count; edge1Index++)
+        {
+            for (int edge2Index = 0; edge2Index < edge2.Corners.Count; edge2Index++)
+            {
+                if (edge1.Corners[edge1Index].Position == edge2.Corners[edge2Index].Position)
                 {
-
-                    cornerList.Add(corner);
-                }
-
-            }
-
-
-        }
-
-        for (int i = 0; i < cornerList.Count; i++)
-        {
-            int addIndex = i + 1;
-            if (addIndex >= tile.Edges.Count)
-            {
-                addIndex = 0;
-            }
-            cornerList[i].EdgeNeighbours.Add(tile.Edges[addIndex]);
-
-        }
-        tile.Corners = cornerList;
-    }
-
-    private void CombineCorners(int column, int row)
-    {
-
-        Tile startTile = GetTile(column, row);
-        List<Tile> adjacentTiles = GetAdjacentTiles(column, row);
-        foreach (Corner corner in startTile.Corners)
-        {
-            foreach (Tile tile in adjacentTiles)
-            {
-
-                // Only set overlap when there is overlap
-                if (tile.Corners.Find(cor => corner.Position == cor.Position) != null)
-                {
-                    SetOverlappingCorners(tile, corner);
-                }
-            }
-
-        }
-
-    }
-
-    private void SetOverlappingCorners(Tile tile, Corner corner)
-    {
-        foreach (Corner tileCorner in tile.Corners)
-        {
-            if (tileCorner.Position == corner.Position)
-            {
-
-                corner.EdgeNeighbours = FindOverlappingEdges(corner, tileCorner);
-                corner = tileCorner;
-            }
-
-        }
-    }
-
-    private List<Edge> FindOverlappingEdges(Corner corner1, Corner corner2)
-    {
-        List<Edge> edgeList = new List<Edge>();
-
-        edgeList = corner1.EdgeNeighbours;
-        foreach(Edge edge in corner2.EdgeNeighbours)
-        {
-            if (edgeList.Find(edg => edg.EdgePosition == edge.EdgePosition) == null)
-            {
-                edgeList.Add(edge);
-            }
-        }
-
-        return edgeList;
-    }
-    
-
-    private List<Tile> GetAdjacentTiles(int column, int row)
-    {
-        List<Tile> adjacentTiles = new List<Tile>();
-        Tile northTile = GetTile(column + 1, row);
-        Tile southTile = GetTile(column - 1, row);
-        Tile eastTile = GetTile(column, row + 1);
-        Tile westTile = GetTile(column, row - 1);
-
-
-        adjacentTiles.Add(northTile);
-        adjacentTiles.Add(eastTile);
-        adjacentTiles.Add(westTile);
-        adjacentTiles.Add(southTile);
-
-        Tile southEastTile = GetTile(column - 1, row + 1);
-        Tile soutWestTile = GetTile(column - 1, row - 1);
-        Tile northEastTile = GetTile(column + 1, row + 1);
-        Tile northWestTile = GetTile(column + 1, row - 1);
-
-
-        adjacentTiles.Add(northEastTile);
-        adjacentTiles.Add(northWestTile);
-        adjacentTiles.Add(southEastTile);
-        adjacentTiles.Add(soutWestTile);
-
-        adjacentTiles.RemoveAll(tile => tile == null);
-
-
-        return adjacentTiles;
-    }
-
-
-    private Edge GetCommonEdge(Tile tile1, Tile tile2)
-    {
-        if (tile1 == null || tile2 == null)
-        {
-            return null;
-        }
-        foreach (Edge edge1 in tile1.Edges)
-        {
-            if (edge1 == null)
-            {
-                continue;
-            }
-            foreach (Edge edge2 in tile2.Edges)
-            {
-                if (edge2 == null)
-                {
-                    continue;
-                }
-                if (edge1.EdgePosition == edge2.EdgePosition)
-                {
-                    return edge1;
-                }
-
-            }
-        }
-        return null;
-    }
-
-    private Corner GetCommonCorner(Edge edge1, Edge edge2)
-    {
-        if (edge1 == null || edge2 == null)
-        {
-            return null;
-        }
-        foreach (Corner corner1 in edge1.Corners)
-        {
-            foreach (Corner corner2 in edge2.Corners)
-            {
-                if (corner1.Position == corner2.Position)
-                {
-                    return corner1;
+                    edge1.Corners[edge1Index] = edge2.Corners[edge2Index];
+                    edge1.Corners[edge1Index].EdgeNeighbours.Add(edge1);
+                    edge1.Corners[edge1Index].EdgeNeighbours.Add(edge2);
                 }
             }
         }
-        return null;
     }
 
-    // Helpers
+    // Tile helpers
 
     private Tile GetTile(int column, int row)
     {
@@ -389,35 +286,28 @@ public class GridManager : MonoBehaviour
             return null;
         }
 
+
         return Tiles[index];
     }
 
 
-    private List<Edge> FindEdges(int column, int row)
+    private Edge GetOverlappingEdge(Tile tile1, Tile tile2)
     {
-        Tile currentTile = GetTile(column, row);
-        if (currentTile == null)
+        foreach (Edge edge1 in tile1.Edges)
         {
-            Debug.LogError("Invalid tile: GridManager.FindEdges()");
+            foreach (Edge edge2 in tile2.Edges)
+            {
+                if (edge1.EdgePosition == edge2.EdgePosition)
+                {
+                    return edge1;
+                }
+
+            }
         }
-        List<Edge> edgeList = new List<Edge> { null, null, null, null };
-        // NORTH-SOUTH-EAST-WEST
 
-        Tile northTile = GetTile(column + 1, row);
-        Tile southTile = GetTile(column - 1, row);
-        Tile eastTile = GetTile(column, row + 1);
-        Tile westTile = GetTile(column, row - 1);
-
-        AddEdgeToTile(Tile.EdgeDirection.North, currentTile, northTile, edgeList);
-        AddEdgeToTile(Tile.EdgeDirection.South, currentTile, southTile, edgeList);
-        AddEdgeToTile(Tile.EdgeDirection.East, currentTile, eastTile, edgeList);
-        AddEdgeToTile(Tile.EdgeDirection.West, currentTile, westTile, edgeList);
-
-
-
-
-        return edgeList;
+        return null;
     }
+
 
 
     private Tile GetNearestTile(Vector3 position)
@@ -440,6 +330,39 @@ public class GridManager : MonoBehaviour
         }
         return closestTile;
     }
+
+    private List<Tile> GetAdjacentTiles(int index)
+    {
+        List<Tile> adjacentTiles = new List<Tile>();
+
+        int column = GetColumn(index);
+        int row = GetRow(index);
+
+        for (int columnDif = -1; columnDif < 2; columnDif++)
+        {
+            for (int rowDif = -1; rowDif < 2; rowDif++)
+            {
+                // Don't add middle tile
+                if (rowDif == 0 && columnDif == 0)
+                {
+                    continue;
+                }
+                Tile tile = GetTile(column + columnDif, row + rowDif);
+                if (tile != null)
+                {
+                    adjacentTiles.Add(tile);
+                }
+
+            }
+        }
+
+
+        return adjacentTiles;
+    }
+
+
+
+
 
     private Edge GetNearestTileEdge(Vector3 position, Tile tile)
     {
@@ -478,30 +401,32 @@ public class GridManager : MonoBehaviour
 
     }
 
-    //TODO 
-    private List<Edge> GetNearbyPlacedWalls(Edge edge)
-    {
-        List<Edge> walls = new List<Edge>();
 
-        foreach (Corner corner in edge.Corners)
-        {
-            foreach (Edge cornerEdge in corner.EdgeNeighbours)
-            {
-
-            }
-        }
-
-        return walls;
-    }
-
-
-    // Calculating values
+    // Math helpers
 
     private Vector3 GetMidpoint(Vector3 pointA, Vector3 pointB)
     {
         return (pointA + pointB) * 0.5f;
     }
 
+    private int GetColumn(int index)
+    {
+        int column = index / _columnSize;
+        return column;
+    }
+
+    private int GetRow(int index)
+    {
+
+        int row = index % _rowSize;
+        return row;
+    }
+
+    private int GetIndex(int column, int row)
+    {
+        int index = column * _columnSize + row;
+        return index;
+    }
 
 
 }

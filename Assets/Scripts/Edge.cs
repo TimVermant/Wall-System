@@ -20,7 +20,11 @@ public class Edge
     public List<Tile> AdjacentTiles { get; set; } = new List<Tile> { null, null };
     public List<Corner> Corners { get; set; } = new List<Corner> { null, null };
 
-
+    public bool CornersSet { get
+        {
+            return Corners[0] != null || Corners[1] != null;
+        }
+    }
 
 
 
