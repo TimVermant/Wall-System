@@ -21,4 +21,9 @@ The wall system is the main focus of this project, it gets utilized by the build
 
 ## Credits
 
+### External code
 Since camera movement wasn't the focus of this project, I used a simple camera movement script that I found online: https://gist.github.com/gunderson/d7f096bd07874f31671306318019d996
+
+### Packages
+For the visuals of the walls I donwloaded Walls and Floors v1 and for the ground texture I used the Outdoor Ground Textures asset pack
+
