@@ -17,7 +17,8 @@ The building mechanic works fairly simple and uses a raycast to project and snap
 
 ### Wall system
 The wall system is the main focus of this project, it gets utilized by the builder to check and store every wall that gets placed to procedurally update corner pieces whenever a change in wall placement occurs. For example placing 2 walls next to eachother will spawn a corner inbetween, this will ofcourse work the other way around. 
- 
+ ![image](https://user-images.githubusercontent.com/40210931/203131446-9e08aa9e-7262-4c9b-98fc-157487f9e0ed.png)
+
 
 ## Credits
 
